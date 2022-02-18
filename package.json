@@ -1,0 +1,20 @@
+{
+  "name": "tasktracker",
+  "version": "1.0.0",
+  "description": "a task tracker for productivity and collaboration",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon index.js"
+  },
+  "author": "TommyGun",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "express": "^4.17.3",
+    "express-session": "^1.17.2",
+    "mongoose": "^6.2.2"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.0"
+  }
+}
