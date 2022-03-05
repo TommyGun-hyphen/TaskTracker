@@ -1,0 +1,5 @@
+<% for(var member of members) {%> 
+    <a class="h3 d-inline" href="/users/<%=member.user.id%>"><%=member.user.username%></a>
+    <h4><%=member.user.email%></h4>
+
+<% } %>

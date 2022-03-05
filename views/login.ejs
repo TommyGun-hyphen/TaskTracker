@@ -1,0 +1,20 @@
+<div class="card mt-5 col-6">
+    <div class="card-body">
+      <%- include('partials/errors')%>
+       <form action="/user/login" method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text"
+              class="form-control" name="username" id="username" aria-describedby="errorUsername" placeholder="username">
+            <small id="errorUsername" class="form-text text-danger "><%= (typeof errorUsername != 'undefined')?errorUsername:''%></small>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password"
+              class="form-control" name="password" id="password" aria-describedby="errorPassword" placeholder="password">
+            <small id="errorPassword" class="form-text text-danger"><%= (typeof errorPassword != 'undefined')?errorPassword:''%></small>
+          </div>
+          <button type="submit" class="btn btn-success mt-4">Login</button>
+       </form>
+    </div>
+</div>
