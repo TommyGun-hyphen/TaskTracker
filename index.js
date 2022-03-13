@@ -13,6 +13,7 @@ app.use(require('body-parser').urlencoded({extended:false}));
 app.set('view engine', 'ejs');
 //ejs layouts
 app.use(require('express-ejs-layouts'));
+app.set('layout', 'layouts/layout')
 //session
 app.use(session({
     secret: process.env.sessionSecret,
@@ -22,7 +23,7 @@ app.use(session({
 }))
 //locals
 app.use((req,res,next)=>{
-    res.locals.isAuthenticated = req.isAuthenticated();
+    res.locals.isAuthenticated = req.isAuthenticated;
     next();
 });
 //flash

@@ -10,7 +10,7 @@ const Task = require('../models/Task');
 const ensureLoggedIn = require('../config/Auth').ensureLoggedIn;
 const ensureLoggedOut = require('../config/Auth').ensureLoggedOut;
 router.get('/', ensureLoggedIn,(req,res)=>{
-    res.render('dashboard/index', {user:req.user})
+    res.render('dashboard/index', {user:req.user, layout:'layouts/admin'})
 });
 
 router.get('/login', ensureLoggedOut, (req,res)=>{

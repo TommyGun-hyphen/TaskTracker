@@ -2,11 +2,27 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const Project = require('../models/Project');
-
 const router = express.Router();
+router.use(require('../config/Auth').ensureLoggedIn);
 router.get('/create', (req,res)=>{
     res.render('project/create');
 });
+router.post('/', (req, res)=>{
+    const {title, description} = req.body;
+    const {id} = req.user;
+    new Project({
+        user: mongoose.Types.ObjectId(id),
+        title: title,
+        description: description,
+        creation_date: Date.now(),
+        last_date: Date.now(),
+        status: "active",
+        members: []
+    }).save(err=>{
+        if(err) console.log(err)
+        else res.redirect('/')
+    });
+})
 router.get('/:id', (req,res)=>{
     var id;
     try{
