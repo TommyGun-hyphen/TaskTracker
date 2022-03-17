@@ -1,4 +1,46 @@
-
-<h1><%=user.username %></h1>
-<h3><%=user.email %></h3>
-<h3><%=user.picture %></h3>
+<div class="container w-75">
+    <div class="card">
+        <div class="card-body">
+            <div class="row my-3">
+                <img src="/<%=userFound.picture%>" alt="profile picture" width="100" height="100" style="object-fit:cover" class="border rounded-circle">
+            </div>
+            <div class="row">
+                <div class="col-4">
+                    <h4><%=userFound.username%></h4>
+                    <h6><%= userFound.friends.length %> friends</h6>
+                </div>
+                <div class="col-8">
+                    <a class="nav-link float-right mx-3" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a>
+                    <div class="dropdown-menu dropdown-menu-right animated--fade-in" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">copy link</a> 
+                        <div class="dropdown-divider"></div> 
+                        
+                        <% if (userFound.isBlocked) { %>
+                            <form action="/user/<%=userFound.id%>/unblock" method="post">
+                                <button type="submit" class="dropdown-item">unblock user</button>
+                            </form>
+                        <% }else{ %>
+                            <form action="/user/<%=userFound.id%>/block" method="post">
+                                <button type="submit" class="dropdown-item">block user</button>
+                            </form>
+                        <% } %>
+                    </div>
+                    <% if (userFound.id != user.id && !userFound.isBlocked && !userFound.isRequested) { %>
+                        <form method="post" action="/user/<%= userFound.id %>/friend">
+                            <button class="btn btn-primary float-right">Add Friend</button>
+                        </form>
+                    <% }else if(userFound.isRequested){%>
+                        <form method="post" action="/user/<%= userFound.id %>/friend">
+                            <input type="hidden" name="_method" value="DELETE" />
+                            <button class="btn btn-warning float-right">remove request</button>
+                        </form>
+                    <% }else if(userFound.isBlocked){%>
+                        <form method="post" action="/user/<%= userFound.id %>/unblock">
+                            <button class="btn btn-danger float-right">unblock</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

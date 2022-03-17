@@ -6,7 +6,9 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
     picture: String,
-    friends: [{id: {type: mongoose.Schema.Types.ObjectId, ref:'User'}, friendship_date: Date}]
+    friends: [{id: {type: mongoose.Schema.Types.ObjectId, ref:'User'}, friendship_date: Date}],
+    requests: [{id: {type: mongoose.Schema.Types.ObjectId, ref:'User'}, request_date: Date}],
+    blocked:[{id: {type: mongoose.Schema.Types.ObjectId, ref:'User'}}]
 });
 userSchema.plugin(passportLocalMongoose);
 
