@@ -1,3 +1,4 @@
 node_modules
 public/img/profile
 .env
+request.http
