@@ -1,19 +1,22 @@
-<div class="card">
-    <div class="card-body">
-        <h4 class="card-title">create new Project</h4>
-        <form action="/project" method="post">
-            <div class="form-group">
-              <label for="title">Project title</label>
-              <input type="text"
-                class="form-control" name="title" id="title" aria-describedby="helpTitle" placeholder="title...">
-              <small id="helpTitle" class="form-text text-muted">enter a meaningful title for your project</small>
-            </div>
-            <div class="form-group">
-              <label for="description">description</label>
-              <textarea class="form-control" name="description" id="description" rows="3" aria-describedby="helpDescription"></textarea>
-              <small id="helpDescription" class="form-text text-muted">enter a concise description for your project</small>
-            </div>
-            <button type="submit" class="btn btn-primary mt-3">Create Project</button>
-        </form>
-    </div>
+<div class="row justify-content-center mt-4">
+  <div class="card w-50">
+      <div class="card-body">
+          <h4 class="card-title">create new Project</h4>
+          <%- include('../partials/errors') %>
+          <form action="/project" method="post">
+              <div class="form-group">
+                <label for="title">Project title</label>
+                <input type="text"
+                  class="form-control" name="title" id="title" aria-describedby="helpTitle" placeholder="title...">
+                <small id="helpTitle" class="form-text text-muted">enter a meaningful title for your project</small>
+              </div>
+              <div class="form-group">
+                <label for="description">description</label>
+                <textarea class="form-control" name="description" id="description" rows="3" aria-describedby="helpDescription"></textarea>
+                <small id="helpDescription" class="form-text text-muted">enter a concise description for your project</small>
+              </div>
+              <button type="submit" class="btn btn-primary mt-3">Create Project</button>
+          </form>
+      </div>
+  </div>
 </div>

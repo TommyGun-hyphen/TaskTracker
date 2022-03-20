@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.mongodb);
 //models
 const User = require('../models/User');
-const Project = require('../models/Project');
-const Task = require('../models/Task');
+// const Project = require('../models/Project');
+// const Task = require('../models/Task');
 //middlewares
 const ensureLoggedIn = require('../config/Auth').ensureLoggedIn;
 const ensureLoggedOut = require('../config/Auth').ensureLoggedOut;
@@ -36,10 +36,45 @@ router.get('/search', ensureLoggedIn, (req,res)=>{
             res.render('search', {users});
         }
     })
-
-    
 })
+//! events test
+// let notificationRequests = {};
+// const events = require('events');
+// let notificationEmitter = new events.EventEmitter();
 
+// notificationEmitter.on('notification', function(data){
+//     if(notificationRequests[data.id]){
+//         let notifications = data.req.user.notifications.filter(n=> n.isUnread == true);
+//         if(notifications.length > 0){
+//             res.json(JSON.stringify(notifications));
+//             req.user.notifications.map(n=>{
+//                 n.isUnread = false;
+//                 return n;
+//             })
+//             data.req.user.save();
+//         }
+//         notificationRequests[data.req.user.id].res.json(JSON.stringify(notifications));
+//         delete notificationRequests[data.id]
+//     }
+// })
+
+//! end events test
+
+const notificationsSystem = require('../config/notificationsSystem');
+
+router.get('/notifications', ensureLoggedIn, async (req, res)=>{
+    let notifications = req.user.notifications.filter(n=> n.isUnread == true);
+    if(notifications.length > 0){
+        res.json(JSON.stringify(notifications));
+        req.user.notifications.map(n=>{
+            n.isUnread = false;
+            return n;
+        })
+        req.user.save();
+    }else{
+        notificationsSystem.notificationRequests[req.user.id] = {req,res};
+    }
+})
 
 
 module.exports = router;

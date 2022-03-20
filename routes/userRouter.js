@@ -16,6 +16,9 @@ const Project = require('../models/Project');
 //file upload
 const busboy = require('connect-busboy');
 
+const notificationsSystem = require('../config/notificationsSystem');
+const { createVerify } = require('crypto');
+
 router.post('/register', busboy(),(req, res)=>{
     //validate
     //console.log(req.body);
@@ -77,41 +80,37 @@ router.post('/register', busboy(),(req, res)=>{
 
         if(errors.length > 0){
             res.render('register', {username, email, password, password_confirm, errors, layout:'layouts/guest'});
+            return
             //return res.redirect('/register');
         }
         //check if exists
-        User.findOne({email:email}).then(user=>{
+        
+        User.findOne({$or:[{username:username}, {email:email}]}).then(user =>{
             if(user){
-                errors.push("email already in use")
+                if(user.username == username){
+                    errors.push("username already in use");
+                }
+                if(user.email == email){
+                    errors.push("email already in use");
+                }
                 res.render('register', {username, email, password, password_confirm, errors, layout:'layouts/guest'});
+                return;
             }else{
-                User.findOne({$or:[{username:username}, {email:email}]}).then(user =>{
-                    if(user){
-                        if(user.username == username){
-                            errors.push("username already in use");
-                        }
-                        if(user.email == email){
-                            errors.push("email already in use");
-                        }
-                        res.render('register', {username, email, password, password_confirm, errors, layout:'layouts/guest'});
-                    }else{
-                        if(picture.file){
-                            var out = fs.createWriteStream(picture.savePath);
-                            var bufferStream = new stream.PassThrough();
-                            bufferStream.end(picture.file);
-                            bufferStream.pipe(out);
-                        }
-                        new User({
-                            username: username,
-                            email: email,
-                            password: bcrypt.hashSync(password, 10),
-                            picture: picture.imgPath
-                        }).save();
-                        res.redirect('/login');
-                    }
-                })
+                if(picture.file){
+                    var out = fs.createWriteStream(picture.savePath);
+                    var bufferStream = new stream.PassThrough();
+                    bufferStream.end(picture.file);
+                    bufferStream.pipe(out);
+                }
+                new User({
+                    username: username,
+                    email: email,
+                    password: bcrypt.hashSync(password, 10),
+                    picture: picture.imgPath
+                }).save();
+                res.redirect('/login');
             }
-        });
+        })
     });
     req.pipe(req.busboy);
     
@@ -145,6 +144,9 @@ router.get('/:id', auth.ensureLoggedIn, (req,res)=>{
                     userFound.isRequested = userFound.requests.some(request=>{
                         return request._id.toString() == req.user.id
                     })
+                    userFound.requestedBy = req.user.requests.some(request=>{
+                        return request._id.toString() == userFound.id;
+                    })
                     res.render('user/show', {userFound});
                 }
                     
@@ -176,7 +178,17 @@ router.post('/:id/unblock', (req,res)=>{
                 req.user.blocked = req.user.blocked.filter(blocked=>{
                     return blocked.id == userFound.id;
                 });
+                // remove friendship
+                req.user.friends = req.user.friends.filter(friend=>{
+                    friend._id.toString() != userFound.id;
+                });
+                userFound.friends = userFound.friends.filter(friend=>{
+                    friend._id.toString() != req.user.id;
+                });
+
                 req.user.save();
+                        
+                userFound.save();
                 res.redirect(req.header('referer') || '/');
             }
             else res.status(404).render('404');
@@ -197,20 +209,81 @@ router.post('/:id/friend', auth.ensureLoggedIn, (req,res)=>{
             let isRequested = userFound.requests.some(request=>{
                 return request._id.toString() == req.user.id
             })
-
+            let requestedBy = req.user.requests.some(request=>{
+                return request._id.toString() == userFound.id
+            })
             if(blockedBy)
                 res.sendStatus(401);
-            else if (isFriend)
-                res.redirect(req.header('referer') || '/');
+            // else if (isFriend)
+            //     res.redirect(req.header('referer') || '/');
             else{
                 //test if method == DELETE or post
-                if(req.body._method == "DELETE" && isRequested){
-                    userFound.requests = userFound.requests.filter(request=>request._id.toString() != req.user.id);
-                }else
+                if(req.body._method == "DELETE"){
+                    
+                    if(isRequested){
+                        //* DELETE request
+                        userFound.requests = userFound.requests.filter(request=>request._id.toString() != req.user.id);
+                        userFound.notifications = userFound.notifications.filter(notification=>{
+                            return (notification.sender_id != req.user.is && notification.object_type != "friend_request")
+                        })
+                        userFound.save();
+                    }else if(isFriend){
+                        //* DELETE friend
+                        req.user.friends = req.user.friends.filter(friend=>{
+                            friend._id.toString() != userFound.id;
+                        });
+                        userFound.friends = userFound.friends.filter(friend=>{
+                            friend._id.toString() != req.user.id;
+                        });
+                        req.user.save();
+                        
+                        userFound.save();
+                        
+                    }
+                }else if(req.body._method == "PUT" && requestedBy){
+                    //* accept request
+                    req.user.friends.push(userFound.id);
+                    userFound.friends.push(req.user.id);
+                    req.user.requests = req.user.requests.filter(request=>{
+                        request._id.toString() != userFound.id;
+                    });
+                    req.user.save();
+                    userFound.notifications.push({
+                        sender_id: mongoose.Types.ObjectId(req.user.id),
+                        sender_username: req.user.username,
+                        sender_picture: req.user.picture,
+                        date: Date.now(),
+                        object_type: 'friend_request',
+                        activity_type: 'accepted',
+                        object_id: null,
+                        url: '/user/'.concat(req.user.id),
+                        isUnread:true
+                    });
+                    userFound.save().then(()=>{
+                        notificationsSystem.notificationEmitter.emit('notification', {id:userFound.id})
+                    });
+                    
+                }else{
                     userFound.requests.push(req.user.id);
+                    userFound.notifications.push({
+                        sender_id: mongoose.Types.ObjectId(req.user.id),
+                        sender_username: req.user.username,
+                        sender_picture: req.user.picture,
+                        date: Date.now(),
+                        object_type: 'friend_request',
+                        activity_type: 'sent',
+                        object_id: null,
+                        url: '/user/'.concat(req.user.id),
+                        isUnread:true
+                    });
+                    userFound.save().then(()=>{
+                        notificationsSystem.notificationEmitter.emit('notification', {id:userFound.id});
+                    });
+                
+                }
+                    
 
                 
-                userFound.save();
                 res.redirect(req.header('referer') || '/');
             }
             
@@ -218,5 +291,9 @@ router.post('/:id/friend', auth.ensureLoggedIn, (req,res)=>{
             res.sendStatus(404);
         }
     })
+    
 })
+
+
+
 module.exports = router;
