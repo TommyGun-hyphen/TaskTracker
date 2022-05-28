@@ -40,6 +40,13 @@ router.post('/register', busboy(),(req, res)=>{
         }
     });
     req.busboy.on('file', (fieldName, file, fileName)=>{
+        // file.resume();
+        // return;
+        try {
+            fs.mkdirSync('app/public/img/profile');
+          } catch (err) {
+            if (err.code !== 'EEXIST') throw err
+          }
         let imgPath = path.join('img', 'profile', uuidv4()+'.'+fileName.filename.split('.').pop());
         let savePath = path.join('/app/public',imgPath);
         if(fieldName == 'picture' && fileName.filename){
