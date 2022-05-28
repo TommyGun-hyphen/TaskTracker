@@ -43,7 +43,7 @@ router.post('/register', busboy(),(req, res)=>{
         // file.resume();
         // return;
         try {
-            fs.mkdirSync('app/public/img/profile');
+            fs.mkdirSync('/app/public/img/profile');
           } catch (err) {
             if (err.code !== 'EEXIST') throw err
           }
