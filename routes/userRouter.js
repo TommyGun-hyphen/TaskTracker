@@ -53,7 +53,7 @@ router.post('/register', busboy(),(req, res)=>{
         }else{
             extention = "jpg";
         }
-        let imgPath = path.join('img', 'profile', uuidv4()+'.'+);
+        let imgPath = path.join('img', 'profile', uuidv4()+'.'+extention);
         let savePath = path.join('/app/public',imgPath);
         if(fieldName == 'picture' && fileName.filename){
             picture.imgPath = imgPath;
