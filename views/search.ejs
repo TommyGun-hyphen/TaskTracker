@@ -1,17 +1,17 @@
-<div class="container bg-white w-50 mt-4">
+<div class="container bg-white col-11 col-md-6 mx-auto mt-4">
     <% for(userFound of users) { %>
         <a href="/user/<%= userFound.id %>" class="text-reset text-decoration-none">
             <div class="row p-3 align-items-center">
-                <div class="col-3">
+                <div class="col-4">
                     <img src="<%= userFound.picture %>" width="75" height="75" style="object-fit:cover" class="rounded-circle border"/>
                 </div>
                 <div class="col-6">
                     <h4><%= userFound.username%></h4>
                     <h6><%= userFound.email%></h6>
                 </div>
-                <div class="col-3">
+                <div class="col-2">
                     <% if (userFound.isFriend) { %>
-                     <h3>friend</h3>
+                     <h6 class="text-success">friend</h6>
                     <% } %>
                 </div>
             </div>

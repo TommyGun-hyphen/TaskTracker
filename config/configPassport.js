@@ -3,7 +3,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 passport.use(new LocalStrategy((username, password, done)=>{
-    User.findOne({username:username}, async (err,user)=>{
+    User.findOne({username:new RegExp("^" + username + "$", "i")}, async (err,user)=>{
         if(err) return done(err);
         if(!user) return done(null, false, {message: 'user not found.'});
         result = await bcrypt.compare(password, user.password);

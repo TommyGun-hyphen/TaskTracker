@@ -1,5 +1,26 @@
-<% for(var member of members) {%> 
-    <a class="h3 d-inline" href="/users/<%=member.user.id%>"><%=member.user.username%></a>
-    <h4><%=member.user.email%></h4>
-
-<% } %>
+<div class="container w-50 bg-white py-5">
+    <h3 class="mb-5"><%= project.title %> members</h3>
+    <% for(member of members) { %>
+        <a href="/user/<%= member.user.id %>" class="text-reset text-decoration-none">
+            <div class="row p-3 align-items-center">
+                <div class="col-4">
+                    <img src="/<%= member.user.picture %>" width="75" height="75" style="object-fit:cover" class="rounded-circle border"/>
+                </div>
+                <div class="col-6">
+                    <h4><%= member.user.username%></h4>
+                    <h6><%= member.user.email%></h6>
+                </div>
+                <div class="col-2">
+                    <% if (member.user.isFriend) { %>
+                     <h6 class="text-success">friend</h6>
+                    <% } %>
+                    <% if (user.permission == "owner") { %>
+                        <form action="/project/<%= project.id %>/member/<%= member.user.id %>" method="post">
+                            <button class="btn btn-info btn-circle">X</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+        </a>
+    <% } %>
+</div>

@@ -1,0 +1,20 @@
+<div class="container mx-auto bg-white w-1/61 md:w-1/2 pr-4 pl-4 mx-auto mt-4">
+    <% for(userFound of users) { %>
+        <a href="/user/<%= userFound.id %>" class="text-reset text-decoration-none">
+            <div class="flex flex-wrap p-3 align-items-center">
+                <div class="w-1/3">
+                    <img src="<%= userFound.picture %>" width="75" height="75" style="object-fit:cover" class="rounded-full border"/>
+                </div>
+                <div class="w-1/2">
+                    <h4><%= userFound.username%></h4>
+                    <h6><%= userFound.email%></h6>
+                </div>
+                <div class="w-1/5">
+                    <% if (userFound.isFriend) { %>
+                     <h6 class="text-green">friend</h6>
+                    <% } %>
+                </div>
+            </div>
+        </a>
+    <% } %>
+</div>

@@ -17,12 +17,10 @@ const Project = require('../models/Project');
 const busboy = require('connect-busboy');
 
 const notificationsSystem = require('../config/notificationsSystem');
-const { createVerify } = require('crypto');
+// const { createVerify } = require('crypto');
 
 router.post('/register', busboy(),(req, res)=>{
     //validate
-    //console.log(req.body);
-    //let {username, email, password, password_confirm} = req.body;
     let username, email, password, password_confirm;
     let picture = {imgPath:null, savePath: null, file:null};
     req.busboy.on('field', (fieldName, val)=>{
@@ -56,10 +54,6 @@ router.post('/register', busboy(),(req, res)=>{
                     picture.file = Buffer.concat([picture.file, data]);
                 }
             });
-            // file.on('end', ()=>{
-            //     console.log('got file');
-            // });
-            //!
         }else{
             file.resume();
         }
@@ -118,13 +112,56 @@ router.post('/register', busboy(),(req, res)=>{
 router.post('/login', passport.authenticate('local', {
     failureRedirect:'/login',
     failureFlash:true
-}),(req,res)=>{
+    }),(req,res)=>{
     res.redirect('/');
 })
 router.get('/logout', (req,res)=>{
     req.logout();
     res.redirect('/login');
 })
+router.get('/friends', auth.ensureLoggedIn, async (req,res)=>{
+    
+        
+        User.findOne({_id:req.user.id}).populate('friends').exec((err, user)=>{
+            let skip = 0;
+            if(typeof req.query.page != 'undefined'){
+                if(!isNaN(parseInt(req.query.page)))
+                skip = (parseInt(req.query.page)-1) * 10;
+            }
+            let project;
+            
+            let regex = [];
+            let mongooseQuery = User.find({_id:{$in:user.friends.map(f=>f._id)}});
+            if(req.query.q){
+                let keywords = req.query.q.split(" ");
+                regex = [];
+                keywords.forEach(k=>{
+                    regex.push(new RegExp(k, "i"));
+                })
+                mongooseQuery.where({username:{"$in":regex}});
+            }
+            mongooseQuery.limit(10).skip(skip).then(async friends=>{
+                if(req.get('content-type') === "application/json"){
+                    if(req.query.project)
+                        project = await Project.findOne({_id:new mongoose.Types.ObjectId(req.query.project)});
+                    return res.json(friends.filter(f => !project.members.some(m => m.user._id.toString() == f.id)).map(f=>{
+                        let newF = {};
+                        newF.username = f.username;
+                        newF.email = f.email;
+                        newF.picture = f.picture;
+                        newF.id = f.id;
+                        if (project)
+                            newF.isInvited = project.userInvites.some(invite=>invite.user.toString() == f._id.toString());
+                        return newF;
+                    }));
+                    
+                }
+                res.render('user/friends', {friends});
+
+            })
+        })
+    //building the view
+});
 router.get('/:id', auth.ensureLoggedIn, (req,res)=>{
     try{
         User.findOne({_id:new mongoose.Types.ObjectId(req.params.id)}).then(userFound=>{
@@ -133,7 +170,7 @@ router.get('/:id', auth.ensureLoggedIn, (req,res)=>{
                     return blocked._id.toString() == req.user.id
                 });
                 if(blockedBy)
-                    res.status(401).render('user/showBlocked');
+                    res.status(401).render('user/showBlocked', {userFound});
                 else{
                     userFound.isBlocked = req.user.blocked.some(blocked=>{
                         return blocked._id.toString() == userFound.id;
@@ -161,9 +198,13 @@ router.post('/:id/block', auth.ensureLoggedIn, (req,res)=>{
     try{
         User.findOne({_id:new mongoose.Types.ObjectId(req.params.id)}).then(userFound=>{
             if(userFound){
-                req.user.blocked.push(userFound.id);
-                req.user.save();
-                res.redirect(req.header('referer') || '/');
+                if( userFound.id == req.user.id){
+                    res.sendStatus(400);
+                }else{
+                    req.user.blocked.push(userFound.id);
+                    req.user.save();
+                    res.redirect(req.header('referer') || '/');
+                }
             }
             else res.status(404).render('404');
         });
@@ -242,8 +283,8 @@ router.post('/:id/friend', auth.ensureLoggedIn, (req,res)=>{
                     }
                 }else if(req.body._method == "PUT" && requestedBy){
                     //* accept request
-                    req.user.friends.push(userFound.id);
-                    userFound.friends.push(req.user.id);
+                    req.user.friends.push({_id:userFound.id, friendship_date:Date.now()});
+                    userFound.friends.push({_id:req.user.id, friendship_date:Date.now()});
                     req.user.requests = req.user.requests.filter(request=>{
                         request._id.toString() != userFound.id;
                     });

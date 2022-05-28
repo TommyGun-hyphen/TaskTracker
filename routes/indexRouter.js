@@ -10,7 +10,7 @@ const User = require('../models/User');
 const ensureLoggedIn = require('../config/Auth').ensureLoggedIn;
 const ensureLoggedOut = require('../config/Auth').ensureLoggedOut;
 router.get('/', ensureLoggedIn,(req,res)=>{
-    res.render('dashboard/index')
+    res.render('dashboard/indextw')
 });
 
 router.get('/login', ensureLoggedOut, (req,res)=>{
@@ -29,6 +29,12 @@ router.get('/search', ensureLoggedIn, (req,res)=>{
         regex.push(new RegExp(k, "i"));
     })
     User.find({username:{"$in":regex}}).then(users=>{
+        users = users.map(userFound=>{
+            userFound.isFriend = userFound.friends.some(friend=>{
+                return friend._id.toString() == req.user.id
+            })
+            return userFound;
+        })
         if(req.get('content-type') === "application/json"){
             
             res.json(users);

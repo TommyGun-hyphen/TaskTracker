@@ -8,6 +8,9 @@ const flash = require('connect-flash');
 const mongoStore = require('connect-mongo');
 //public folder
 app.use(express.static('public'));
+
+app.use(require('method-override')('_method'));
+
 //body parser
 app.use(require('body-parser').urlencoded({extended:false}));
 //ejs
@@ -20,7 +23,7 @@ app.use(session({
     secret: process.env.sessionSecret,
     resave: false,
     saveUninitialized: true,
-    cookie:{maxAge:60*60*1000}, //1hour
+    cookie:{maxAge:60*60*1000 * 24}, //24hours
     store: mongoStore.create({mongoUrl:process.env.mongodb})
 }))
 
@@ -32,7 +35,7 @@ app.use(passport.session());
 //port
 const port = process.env.port || 3000;
 //locals
-
+app.locals.moment = require('moment');
 app.use((req,res,next)=>{
     res.locals.isAuthenticated = req.isAuthenticated;
     if(req.user) res.locals.user = req.user;

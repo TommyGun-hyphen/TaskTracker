@@ -1,0 +1,39 @@
+<div class="relative flex flex-col min-w-0 rounded break-words border bg-white border-1 border-grey-light mt-5 w-1/2">
+    <div class="flex-auto p-6">
+      <%- include('partials/errors.ejs')%>
+       <form action="/user/register" method="post" enctype="multipart/form-data">
+        <div class="mb-4">
+            <label for="username">Username</label>
+            <input type="text"
+              class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-grey-darker border border-grey rounded" name="username" id="username" aria-describedby="helpUsername" placeholder="username">
+            <small id="helpUsername" class="block mt-1 text-grey ">username can only contain alphanumeric characters (a-z A-Z 0-9 _)</small>
+          </div>
+          <div class="mb-4">
+            <label for="email">email</label>
+            <input type="email"
+              class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-grey-darker border border-grey rounded" name="email" id="email" aria-describedby="helpEmail" placeholder="email..">
+            <small id="helpEmail" class="block mt-1 text-grey">enter your email</small>
+          </div>
+          <div class="mb-4">
+            <label for="password">Password</label>
+            <input type="password"
+              class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-grey-darker border border-grey rounded" name="password" id="password" aria-describedby="helpPassword" placeholder="password">
+            <small id="helpPassword" class="block mt-1 text-grey">password should be at least 6 characters long</small>
+          </div>
+          <div class="mb-4">
+            <label for="password_confirm">confirm password</label>
+            <input type="password"
+              class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-grey-darker border border-grey rounded" name="password_confirm" id="password_confirm" aria-describedby="helpPassword_confirm" placeholder="confirm password">
+            <small id="helpPassword_confirm" class="block mt-1 text-grey">confirm your password</small>
+          </div>
+          <div class="mb-4">
+            <label for="picture">profile picture</label>
+            <br>
+            <input type="file" class="block appearance-none" name="picture" id="picture" placeholder="profile picture" aria-describedby="helpPicture">
+            <br>
+            <small id="helpPicture" class="block mt-1 text-grey">upload a profile picture</small>
+          </div>
+          <button type="submit" class="inline-block align-middle text-center select-none border font-normal whitespace-no-wrap py-2 px-4 rounded text-base leading-normal no-underline text-green-lightest bg-green hover:bg-green-light mt-4">Register</button>
+       </form>
+    </div>
+</div>

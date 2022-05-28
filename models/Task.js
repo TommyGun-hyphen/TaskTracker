@@ -8,5 +8,7 @@ module.exports = mongoose.model('Task', {
     created_by:{type:mongoose.Schema.Types.ObjectId, ref:'User'},
     finished_by: {type:mongoose.Schema.Types.ObjectId, ref:'User'},
     creation_date: Date,
+    last_date: Date,
     completion_date: Date,
+    // order: {type:Number, default: 0}
 });

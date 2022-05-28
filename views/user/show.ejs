@@ -1,5 +1,5 @@
-<div class="container w-75">
-    <div class="card">
+<div class="container w-100">
+    <div class="card mx-auto">
         <div class="card-body">
             <div class="row my-3">
                 <img src="/<%=userFound.picture%>" alt="profile picture" width="100" height="100" style="object-fit:cover" class="border rounded-circle">
@@ -15,14 +15,16 @@
                         <a class="dropdown-item" href="#">copy link</a> 
                         <div class="dropdown-divider"></div> 
                         
-                        <% if (userFound.isBlocked) { %>
-                            <form action="/user/<%=userFound.id%>/unblock" method="post">
-                                <button type="submit" class="dropdown-item">unblock user</button>
-                            </form>
-                        <% }else{ %>
-                            <form action="/user/<%=userFound.id%>/block" method="post">
-                                <button type="submit" class="dropdown-item">block user</button>
-                            </form>
+                        <% if (userFound.id != user.id) { %>
+                            <% if (userFound.isBlocked) { %>
+                                <form action="/user/<%=userFound.id%>/unblock" method="post">
+                                    <button type="submit" class="dropdown-item">unblock user</button>
+                                </form>
+                            <% }else{ %>
+                                <form action="/user/<%=userFound.id%>/block" method="post">
+                                    <button type="submit" class="dropdown-item">block user</button>
+                                </form>
+                            <% } %>
                         <% } %>
                     </div>
                     <% if (userFound.id != user.id && !userFound.isBlocked && !userFound.isRequested && !userFound.requestedBy && !userFound.isFriend) { %>

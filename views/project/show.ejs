@@ -1,9 +1,37 @@
 <div class="header-bar d-flex align-items-center justify-content-between">
     <h4 class="text-light d-inline"><%= project.title %></h4>
+    <a href="/project/<%= project.id %>/members">
 
-    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#inviteUsers">
+    <div class="d-flex align-items-center">
+        <% for(let i = 0; i < project.members.length; i++) { %>
+            <img width="50" height="50" style="object-fit: cover; margin-left: -20px; z-index:<%= 2-i %>" class="rounded-circle" src="/<%=project.members[i].user.picture%>"/>
+        <% } %>
+        <% if (project.moreMembers > 0) { %>
+                <h4 class="mx-1 text-white">+<%= project.moreMembers %></h4>
+        <% } %>
+  </div>
+</a>
+    <% if (user.permission == "admin" || user.permission == "owner") { %>
+      <button type="button" id="invite-modal-btn" class="btn btn-info" data-toggle="modal" data-target="#inviteUsers">
         + Invite
-    </button>
+      </button>
+    <% } %>
+    
+    <% if (user.isInvited) { %>
+      <div>
+        <form action="/project/<%= project.id %>/invite/decline" method="post"> 
+          <button class="btn btn-warning">
+            decline
+          </button>
+        </form>
+        <form action="/project/<%= project.id %>/invite/accept" method="post"> 
+          <button class="btn btn-success">
+            accept
+          </button>
+        </form>
+
+      </div>
+    <% } %>
 
     <div class="modal fade" id="inviteUsers" tabindex="-1" role="dialog" aria-labelledby="inviteUsersModal" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -26,22 +54,7 @@
                 </div>
             </div>
               <div id="inviteFriendsList">
-                <div>
-                    <a href="/user/" class="text-reset text-decoration-none">
-                        <div class="row p-3 align-items-center">
-                            <div class="col-2">
-                                <img src="https://source.unsplash.com/random/50x50" width="50" height="50" style="object-fit:cover" class="rounded-circle border"/>
-                            </div>
-                            <div class="col-6">
-                                <h5>ysername</h5>
-                                <h6>emakf@of.com</h6>
-                            </div>
-                            <div class="col-4">
-                                <button class="btn btn-primary float-right">invite</button>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                    
               </div>
             </div>
             <div class="modal-footer">
@@ -50,5 +63,425 @@
           </div>
         </div>
       </div>
-
 </div>
+
+<div class="d-block">
+  <!-- MOBILE -->
+  <ul class="nav nav-tabs d-flex justify-content-center" id="myTab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="todo-tab" data-toggle="tab" href="#todo" role="tab" aria-controls="home" aria-selected="true">To-do</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="doing-tab" data-toggle="tab" href="#doing" role="tab" aria-controls="profile" aria-selected="false">Doing</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="done-tab" data-toggle="tab" href="#done" role="tab" aria-controls="contact" aria-selected="false">Done</a>
+    </li>
+  </ul>
+  
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="todo" role="tabpanel" aria-labelledby="todo-tab">
+      <!-- todo -->
+      <% if (user.permission == "owner" || user.permission == "admin" ){ %>
+        <button type="button" class="btn btn-primary float-right btn-sm" data-toggle="modal" data-target="#addTaskModal">
+          + Add
+        </button>
+      <% } %>
+      <ul id="todo-ul" class="list-unstyled">
+        <% for(task of project.tasks.filter(p=>p.status == "todo") ){ %>
+          <li class="d-flex align-items-center px-3 py-2">
+            <div class="flex-grow-1">
+              <h5 class="text-dark"><%= task.title %></h5>
+              <small class="my-1 text-muted"><%= moment(task.last_date).format('MMMM do YYYY, h:mm:ss a') %></small>
+              <span class="text-dark d-block"><%= task.description %>
+              </span>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button class="dropdown-item btn-task-next" data-status="doing" data-id="<%= task.id %>">Mark as Doing >></button>
+                <% if (user.permission == "owner" || user.permission == "admin") { %>
+                  <button class="dropdown-item btn-task-delete" data-id="<%= task.id %>">Delete</button>
+                <% } %>
+                <button class="dropdown-item btn-task-details" data-id="<%= task.id %>">Details</button>
+              </div>
+            </div>
+          </li>
+        <% }%>
+        
+      </ul>
+    </div>
+    <div class="tab-pane fade" id="doing" role="tabpanel" aria-labelledby="doing-tab">
+      <ul id="doing-ul" class="list-unstyled">
+        <% for(task of project.tasks.filter(p=>p.status == "doing") ){ %>
+          <li class="d-flex align-items-center px-3 py-2">
+            <div class="flex-grow-1">
+              <h5 class="text-dark"><%= task.title %></h5>
+              <small class="my-1 text-muted"><%= moment(task.last_date).format('MMMM do YYYY, h:mm:ss a') %></small>
+              <span class="text-dark d-block"><%= task.description %>
+              </span>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button class="dropdown-item btn-task-next" data-status="done" data-id="<%= task.id %>">Mark as done >></button>
+                <button class="dropdown-item btn-task-next" data-status="todo" data-id="<%= task.id %>">Mark as to-do <<</button>
+                <% if (user.permission == "owner" || user.permission == "admin") { %>
+                  <button class="dropdown-item btn-task-delete" data-id="<%= task.id %>">Delete</button>
+                <% } %>
+                <button class="dropdown-item btn-task-details" data-id="<%= task.id %>">Details</button>
+              </div>
+            </div>
+          </li>
+        <% }%>
+        
+      </ul>
+    </div>
+    <div class="tab-pane fade" id="done" role="tabpanel" aria-labelledby="done-tab">
+      <ul id="done-ul" class="list-unstyled">
+        <% for(task of project.tasks.filter(p=>p.status == "done") ){ %>
+          <li class="d-flex align-items-center px-3 py-2">
+            <div class="flex-grow-1">
+              <h5 class="text-dark"><%= task.title %></h5>
+              <small class="my-1 text-muted"><%= moment(task.last_date).format('MMMM do YYYY, h:mm:ss a') %></small>
+              <span class="text-dark d-block"><%= task.description %>
+              </span>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button class="dropdown-item btn-task-next" data-status="doing" data-id="<%= task.id %>">Mark as Doing <<</button>
+                <% if (user.permission == "owner" || user.permission == "admin") { %>
+                  <button class="dropdown-item btn-task-delete" data-id="<%= task.id %>">Delete</button>
+                <% } %>
+                <button class="dropdown-item btn-task-details" data-id="<%= task.id %>">Details</button>
+              </div>
+            </div>
+          </li>
+        <% }%>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="d-none d-md-flex">
+  <!-- DESKTOP -->
+  <div style="flex-basis: 30%;" class="flex-grow-1 p-3 border m-1 bg-light rounded shadow">
+    <div class="w-100 border-bottom">
+      <!-- <button class="btn btn-primary float-right btn-sm">+ Add</button> -->
+      
+      
+      <h4 class="text-center my-1">To-do</h4>
+    </div>
+    
+  </div>
+  <div style="flex-basis: 30%;" class="flex-grow-1 p-3 border m-1 bg-light rounded shadow">
+    <div class="w-100 border-bottom">
+      <h4 class="text-center my-1">Doing</h4>
+    </div>
+    
+  </div>
+  <div style="flex-basis: 30%;" class="flex-grow-1 p-3 border m-1 bg-light rounded shadow">
+    <div class="w-100 border-bottom">
+      <h4 class="text-center my-1">Done</h4>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Add modal -->
+<div class="modal fade" id="addTaskModal" tabindex="-1" role="dialog" aria-labelledby="addTaskModal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTaskModal">Add new task</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-errors">
+
+        </div>
+        <label>Title:</label>
+        <input type="text" class="form-control" id="text_title" placeholder="Enter Title...">
+        <small id="emailHelp" class="form-text text-muted">Title has to be 5 to 30 characters long.</small>
+
+        <label>Description:</label>
+        <textarea class="form-control" id="textarea_description" id="exampleFormControlTextarea1" rows="3"></textarea>
+        <small id="emailHelp" class="form-text text-muted">Title has to be 5 to 255 characters long.</small>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="closeModalBtn" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="addTaskBtn">Add task</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  let changeStatus = function(){
+    console.log('status')
+    let id = $(this).data('id');
+    let status = $(this).data('status');
+    $.ajax({
+      url: '/project/<%= project.id %>/task/'+id+'/status',
+      method: 'POST',
+      data:{
+        status
+      },
+      success:(data)=>{
+        switch(status){
+          case "todo":
+            $("#todo-ul").append(`
+                <li class="d-flex align-items-center px-3 py-2">
+              <div class="flex-grow-1">
+                <h5 class="text-dark">${data.task.title}</h5>
+                <small class="my-1 text-muted">${data.last_date}</small>
+                <span class="text-dark d-block">${data.task.description}
+                </span>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <button class="dropdown-item btn-task-next" data-status="doing" data-id="${data.task._id}">Mark as Doing >></button>
+                  
+                    ${(data.permission == "owner" || data.permission == "admin")?'<button class="dropdown-item btn-task-delete" data-id="${data.task.id}">Delete</button>' : ''}
+                  
+                  <button class="dropdown-item btn-task-details" data-id="${data.task._id}">Details</button>
+                </div>
+              </div>
+            </li>
+            `);
+            break;
+            case "doing":
+            $("#doing-ul").append(`
+                <li class="d-flex align-items-center px-3 py-2">
+              <div class="flex-grow-1">
+                <h5 class="text-dark">${data.task.title}</h5>
+                <small class="my-1 text-muted">${data.last_date}</small>
+                <span class="text-dark d-block">${data.task.description}
+                </span>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <button class="dropdown-item btn-task-next" data-status="done" data-id="${data.task._id}">Mark as done >></button>
+                  <button class="dropdown-item btn-task-next" data-status="todo" data-id="${data.task._id}">Mark as to-do <<</button>                  
+                    ${(data.permission == "owner" || data.permission == "admin")?'<button class="dropdown-item btn-task-delete" data-id="${data.task.id}">Delete</button>' : ''}
+                  
+                  <button class="dropdown-item btn-task-details" data-id="${data.task._id}">Details</button>
+                </div>
+              </div>
+            </li>
+            `);
+              
+            break;
+          case "done":
+            $("#done-ul").append(`
+                <li class="d-flex align-items-center px-3 py-2">
+              <div class="flex-grow-1">
+                <h5 class="text-dark">${data.task.title}</h5>
+                <small class="my-1 text-muted">${data.last_date}</small>
+                <span class="text-dark d-block">${data.task.description}
+                </span>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <button class="dropdown-item btn-task-next" data-status="doing" data-id="${data.task._id}">Mark as doing <<</button>                  
+                    ${(data.permission == "owner" || data.permission == "admin")?'<button class="dropdown-item btn-task-delete" data-id="'+data.task.id+'">Delete</button>' : ''}
+                  
+                  <button class="dropdown-item btn-task-details" data-id="${data.task._id}">Details</button>
+                </div>
+              </div>
+            </li>
+            `);
+            break;
+        }
+        $(this).closest('li').remove();
+        $(".btn-task-next").unbind('click').on('click',changeStatus);
+
+      },
+      error: ()=>{
+        alert('not good');
+      }
+    });
+  }
+  $(".btn-task-next").on('click', changeStatus);
+
+  let delTask = function(){
+    let id = $(this).data('id');
+    $.ajax({
+      url:"/project/<%= project.id %>/task/" + id,
+      method:"post",
+      data:{
+        _method:"DELETE"
+      },
+      success:()=>{
+        $(this).closest('li').remove();
+      },
+    });
+  }
+
+  $(".btn-task-delete").on('click', delTask);
+  $("#addTaskBtn").on('click', function(){
+    $.ajax({
+      method:"post",
+      url: "/project/<%= project.id %>/task",
+      data:{
+        title: $("#text_title").val(),
+        description: $("#textarea_description").val()
+      },
+      success: (data)=>{
+        $("#todo-ul").append(`
+        <li class="d-flex align-items-center px-3 py-2">
+          <div class="flex-grow-1">
+            <h5 class="text-dark">`+data.title+`</h5>
+            <small class="my-1 text-muted">`+data.last_date+`</small>
+            <span class="text-dark d-block">`+data.description+`
+            </span>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <button class="dropdown-item btn-task-next" data-status="doing" data-id=`+data._id+`>Mark as Doing >></button>
+              <button class="dropdown-item btn-task-delete" data-id=`+data._id+`>Delete</button>
+              <button class="dropdown-item btn-task-details" data-id=`+data._id+`>Details</button>
+            </div>
+          </div>
+        </li>
+        `);
+        $(".btn-task-delete").on('click', delTask);
+        $("#text_title").val('');
+        $("#textarea_description").val('');
+        $("#closeModalBtn").trigger('click');
+        $(".btn-task-next").unbind('click').on('click',changeStatus);
+      },
+      error: ()=>{
+        $("#modal-errors").html('');
+        $("#modal-errors").append(`
+        <div id="addTaskError" class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>error!</strong> please check the form below for errors.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        `);
+      }
+    })
+  });
+  $('#invite-modal-btn').on('click', ()=>{
+    let list = $('#inviteFriendsList');
+    if(list.children().length > 0) return;
+    $.ajax({
+      url:'/user/friends',
+      method:'GET',
+      data:{
+        project:'<%= project.id %>'
+      },
+      contentType:'application/json',
+      success:(data)=>{
+        for(friend of data){
+          if(friend.isInvited){
+            list.append(`
+              <div class="row p-3 align-items-center">
+                  <a href="/user/`+friend.id+`" class="text-reset text-decoration-none">
+                    <div class="col-2">
+                        <img src="/`+friend.picture+`" width="50" height="50" style="object-fit:cover" class="rounded-circle border"/>
+                    </div>
+                    <div class="col-6">
+                        <h5>`+friend.username+`</h5>
+                        <h6>`+friend.email+`</h6>
+                    </div>
+                  </a>
+                  <div class="col-4">
+                      <button data-id="`+friend.id+`" data-invited="true" class="btn_invite btn btn-success float-right"><i class="fa-solid fa-check"></i></button>
+                  </div>
+              </div>
+          `);
+          }else{
+            list.append(`
+              <div class="row p-3 align-items-center">
+                  <a href="/user/`+friend.id+`" class="text-reset text-decoration-none">
+                    <div class="col-2">
+                        <img src="/`+friend.picture+`" width="50" height="50" style="object-fit:cover" class="rounded-circle border"/>
+                    </div>
+                    <div class="col-6">
+                        <h5>`+friend.username+`</h5>
+                        <h6>`+friend.email+`</h6>
+                    </div>
+                  </a>
+                  <div class="col-4">
+                      <button data-id="`+friend.id+`" data-invited="false" class="btn_invite btn btn-primary float-right">invite</button>
+                  </div>
+              </div>
+          `);
+          }
+          
+          }
+          $('.btn_invite').on('click', function(){
+            let user_id = $(this).data('id');
+            if( $(this).data('invited') == false ){
+              
+              $.ajax({
+                url:'/project/<%= project.id %>/invite',
+                method:'POST',
+                data:{
+                  user_id: user_id
+                },
+                success:()=>{
+                  console.log('success invite')
+                  $(this).html('<i class="fa-solid fa-check"></i>');
+                  $(this).removeClass('btn-primary');
+                  $(this).addClass('btn-success');
+                  $(this).data('invited', 'true');
+                },
+                complete:()=>{
+                  console.log('complete')
+                }
+              })
+            }else{
+              //delete invite
+              $.ajax({
+                url:'/project/<%= project.id %>/invite',
+                method:'POST',
+                data:{
+                  user_id: user_id,
+                  _method:'DELETE'
+                },
+                success:()=>{
+                  console.log('success delete')
+                  $(this).html('invite');
+                  $(this).removeClass('btn-success');
+                  $(this).addClass('btn-primary');
+                  $(this).data('invited', false);
+                },
+                complete:()=>{
+                  console.log('complete')
+                }
+              })
+            }
+          });
+        }
+      });
+  });
+  
+</script>

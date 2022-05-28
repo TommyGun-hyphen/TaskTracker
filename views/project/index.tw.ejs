@@ -1,0 +1,30 @@
+<div class="flex flex-wrap justify-content-center mt-4">
+    <div class="relative flex flex-col min-w-0 rounded break-words border bg-white border-1 border-grey-light w-1/61 md:w-1/2 pr-4 pl-4 mx-auto">
+        <div class="flex-auto p-6">
+            <h4 class="mb-3">Your projects</h4>
+            <% for( project of projects) { %>
+            <div class="relative flex flex-col min-w-0 rounded break-words border bg-white border-1 border-grey-light my-2 project-card">
+                <a href="/project/<%= project.id %>" class="text-reset text-decoration-none">
+                    <div class="flex flex-wrap p-3 align-items-center">
+                        <div class="w-1/62 md:w-2/3 pr-4 pl-4">
+                            <h4 class="text-blue"><%= project.title %></h4>
+                            <h6>created at:</h6><h6> <%= moment(project.creation_date).format('MMMM do YYYY, h:mm:ss a') %></h6>
+                            <h6>last:</h6><h6> <%= moment(project.last_date).format('MMMM do YYYY, h:mm:ss a') %></h6>
+                        </div>
+                        <div class="w-1/62 md:w-1/3 pr-4 pl-4">
+                            <div class="flex align-items-center mx-auto mt-4">
+                                <% for(let i = 0; i < project.members.length; i++) { %>
+                                    <img width="50" height="50" style="object-fit: cover; margin-left: -20px; z-index:<%= 2-i %>" class="rounded-full" src="/<%=project.members[i].user.picture%>"/>
+                                <% } %>
+                                <% if (project.moreMembers > 0) { %>
+                                        <h4 class="mx-1">+<%= project.moreMembers %></h4>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% } %>
+        </div>
+    </div>
+  </div>

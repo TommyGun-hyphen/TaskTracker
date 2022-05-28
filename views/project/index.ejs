@@ -1,3 +1,31 @@
-<% for( project of projects) { %>
-    <h1><%= project.title %></h1>
-<% } %>
+<div class="row justify-content-center mt-4">
+    <div class="card col-11 col-md-6 mx-auto">
+        <div class="card-body">
+            <h4 class="card-title">Your projects</h4>
+            <% for( project of projects) { %>
+            <div class="card my-2 project-card">
+                <a href="/project/<%= project.id %>" class="text-reset text-decoration-none">
+                    <div class="row p-3 align-items-center">
+                        <div class="col-12 col-md-8">
+                            <h4 class="text-primary"><%= project.title %></h4>
+                            <h6>created at:</h6><h6> <%= moment(project.creation_date).format('MMMM do YYYY, h:mm:ss a') %></h6>
+                            <h6>last:</h6><h6> <%= moment(project.last_date).format('MMMM do YYYY, h:mm:ss a') %></h6>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            
+                            <div class="d-flex align-items-center mx-auto mt-4">
+                                <% for(let i = 0; i < project.members.length; i++) { %>
+                                    <img width="50" height="50" style="object-fit: cover; margin-left: -20px; z-index:<%= 2-i %>" class="rounded-circle" src="/<%=project.members[i].user.picture%>"/>
+                                <% } %>
+                                <% if (project.moreMembers > 0) { %>
+                                        <h4 class="mx-1">+<%= project.moreMembers %></h4>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% } %>
+        </div>
+    </div>
+  </div>

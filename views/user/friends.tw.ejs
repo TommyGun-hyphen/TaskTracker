@@ -1,0 +1,21 @@
+<div class="container mx-auto w-1/2 bg-white py-5">
+    <h3>Friends:</h3>
+    <% for(friend of friends) { %>
+        <a href="/user/<%= friend.id %>" class="text-reset text-decoration-none">
+            <div class="flex flex-wrap p-3 align-items-center">
+                <div class="w-1/3">
+                    <img src="/<%= friend.picture %>" width="75" height="75" style="object-fit:cover" class="rounded-full border"/>
+                </div>
+                <div class="w-1/2">
+                    <h4><%= friend.username%></h4>
+                    <h6><%= friend.email%></h6>
+                </div>
+                <div class="w-1/5">
+                    <% if (friend.isFriend) { %>
+                     <h6 class="text-green">friend</h6>
+                    <% } %>
+                </div>
+            </div>
+        </a>
+    <% } %>
+</div>
