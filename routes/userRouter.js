@@ -47,7 +47,13 @@ router.post('/register', busboy(),(req, res)=>{
           } catch (err) {
             if (err.code !== 'EEXIST') throw err
           }
-        let imgPath = path.join('img', 'profile', uuidv4()+'.'+fileName.filename.split('.').pop());
+        let extention;
+        if(fileName.filename){
+            extention = fileName.filename.split('.').pop();
+        }else{
+            extention = "jpg";
+        }
+        let imgPath = path.join('img', 'profile', uuidv4()+'.'+);
         let savePath = path.join('/app/public',imgPath);
         if(fieldName == 'picture' && fileName.filename){
             picture.imgPath = imgPath;
