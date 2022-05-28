@@ -33,7 +33,7 @@ app.use(flash())
 app.use(passport.initialize());
 app.use(passport.session());
 //port
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
 //locals
 app.locals.moment = require('moment');
 app.use((req,res,next)=>{
