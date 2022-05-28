@@ -96,6 +96,7 @@ router.post('/register', busboy(),(req, res)=>{
                 return;
             }else{
                 if(picture.file){
+                    console.log(picture.savePath)
                     var out = fs.createWriteStream(picture.savePath);
                     var bufferStream = new stream.PassThrough();
                     bufferStream.end(picture.file);
