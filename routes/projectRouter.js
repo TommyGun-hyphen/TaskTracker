@@ -209,7 +209,9 @@ router.post("/:id/task/:task_id", ProjectMiddleware.PopulateProject, (req,res)=>
     }
 })
 router.post("/:id/task/:task_id/status", ProjectMiddleware.PopulateProject, (req,res)=>{
-
+    if(req.user.permission != "owner" && req.user.permission != "admin" && req.user.permission != "member"){
+        return res.sendStatus(401);
+    }
     switch(req.body.status){
         case "todo":
             req.task.status = "todo";
