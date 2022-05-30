@@ -57,12 +57,21 @@ router.get('/', (req,res)=>{
 })
 router.get('/:id', ProjectMiddleware.PopulateProject ,(req,res)=>{
     try{
-        Project.findOne({_id:new mongoose.Types.ObjectId(req.project._id)}).populate('members.user').populate({path:'tasks', options:{sort:{last_date: 1}}}).exec((err, project)=>{
-            project.moreMembers = Math.max(project.members.length, 0);
-            //console.log(project.members);
-            project.members = project.members.slice(0,2);
-            res.render('project/show', {project});
-        });
+        if(req.user.permission == "member" || req.user.permission == "admin" || req.user.permission == "owner"){
+            Project.findOne({_id:new mongoose.Types.ObjectId(req.project._id)}).populate('members.user').populate({path:'tasks', options:{sort:{last_date: 1}}}).exec((err, project)=>{
+                project.moreMembers = Math.max(project.members.length, 0);
+                //console.log(project.members);
+                project.members = project.members.slice(0,2);
+                res.render('project/show', {project});
+            });
+        }else{
+            Project.findOne({_id:new mongoose.Types.ObjectId(req.project._id)}).populate('members.user').exec((err, project)=>{
+                project.moreMembers = Math.max(project.members.length, 0);
+                //console.log(project.members);
+                project.members = project.members.slice(0,2);
+                res.render('project/show', {project});
+            });
+        }
     }catch(ex){
         return res.status(404).render('404');
     }
