@@ -85,7 +85,7 @@
       <a class="nav-link" id="done-tab" data-toggle="tab" href="#done" role="tab" aria-controls="contact" aria-selected="false">Done</a>
     </li>
   </ul>
-  <% if (user.permission == "member" || user.permission == "admin" || user.permission != "owner") { %>
+  <% if (user.permission == "member" || user.permission == "admin" || user.permission == "owner") { %>
   <div class="tab-content" id="TabContent">
     <div class="tab-pane fade show active" id="todo" role="tabpanel" aria-labelledby="todo-tab">
       <!-- todo -->
