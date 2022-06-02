@@ -308,6 +308,7 @@ router.post('/:id/friend', auth.ensureLoggedIn, (req,res)=>{
                         date: Date.now(),
                         object_type: 'friend_request',
                         activity_type: 'accepted',
+                        message: (req.user.username + " accepted your friend request"),
                         object_id: null,
                         url: '/user/'.concat(req.user.id),
                         isUnread:true
@@ -317,21 +318,26 @@ router.post('/:id/friend', auth.ensureLoggedIn, (req,res)=>{
                     });
                     
                 }else{
-                    userFound.requests.push(req.user.id);
-                    userFound.notifications.push({
-                        sender_id: mongoose.Types.ObjectId(req.user.id),
-                        sender_username: req.user.username,
-                        sender_picture: req.user.picture,
-                        date: Date.now(),
-                        object_type: 'friend_request',
-                        activity_type: 'sent',
-                        object_id: null,
-                        url: '/user/'.concat(req.user.id),
-                        isUnread:true
-                    });
-                    userFound.save().then(()=>{
-                        notificationsSystem.notificationEmitter.emit('notification', {id:userFound.id});
-                    });
+                    //* send request
+                    if(!req.user.requests.some(r => r.id == userFound._id.toString()) && !req.user.friends.some(f=>f.id == userFound._id.toString())){
+                        userFound.requests.push(req.user.id);
+                        userFound.notifications.push({
+                            sender_id: mongoose.Types.ObjectId(req.user.id),
+                            sender_username: req.user.username,
+                            sender_picture: req.user.picture,
+                            date: Date.now(),
+                            object_type: 'friend_request',
+                            activity_type: 'sent',
+                            message: (req.user.username + " sent you a friend request"),
+                            object_id: null,
+                            url: '/user/'.concat(req.user.id),
+                            isUnread:true
+                        });
+                        userFound.save().then(()=>{
+                            notificationsSystem.notificationEmitter.emit('notification', {id:userFound.id});
+                        });
+                    }
+                    
                 
                 }
                     

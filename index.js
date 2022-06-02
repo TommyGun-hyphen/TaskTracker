@@ -2,7 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const app = express();
 const passport = require('./config/configPassport');
-// require('dotenv').config();
+require('dotenv').config();
 const User = require('./models/User');
 const flash = require('connect-flash');
 const mongoStore = require('connect-mongo');

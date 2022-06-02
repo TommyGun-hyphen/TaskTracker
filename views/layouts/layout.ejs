@@ -369,6 +369,11 @@
     <!-- Page level custom scripts -->
 
     <script src="/js/longPolling.js"></script>
+    <script>
+        if('Notification' in window && Notification.permission != "granted"){
+            Notification.requestPermission();
+        }
+    </script>
 </body>
 
 </html>

@@ -7,6 +7,17 @@ function poll(){
             notifications = JSON.parse(notifications);
             let friendNotifications = notifications.filter(n=>n.object_type == "friend_request");
             for(n of friendNotifications){
+                if('Notification' in window){
+                    try{
+                        let browserNotification = new Notification('TaskTracker', {body:n.message});
+                        browserNotification.onclick = function(event) {
+                            event.preventDefault(); // prevent the browser from focusing the Notification's tab
+                            window.open(n.url, '_self');
+                        }
+                    }catch{
+                        console.log('legacy notifications not supported')
+                    }
+                }
                 $("#friendNotifications").prepend(`
                 <a class="dropdown-item d-flex align-items-center" href="`+n.url+`">
                     <div class="mr-3">
@@ -23,6 +34,15 @@ function poll(){
             }
             let otherNotifications = notifications.filter(n=>n.object_type == "project_invite");
             for(n of otherNotifications){
+                try{
+                    let browserNotification = new Notification('TaskTracker', {body:n.message});
+                    browserNotification.onclick = function(event) {
+                        event.preventDefault(); // prevent the browser from focusing the Notification's tab
+                        window.open(n.url, '_self');
+                    }
+                }catch{
+                    console.log('legacy notifications not supported')
+                }
                 $("#notifications").prepend(`
                 <a class="dropdown-item d-flex align-items-center" href="`+n.url+`">
                     <div class="mr-3">
