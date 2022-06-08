@@ -1,7 +1,10 @@
 <style>
   @media only screen and (min-width: 600px) {
-    #TabContent{
-      
+    #TabContent *{ 
+      display: block;
+    }
+    #todo, #doing, #done{
+      display: block !important;
     }
 }
 </style>
@@ -84,6 +87,11 @@
     <li class="nav-item">
       <a class="nav-link" id="done-tab" data-toggle="tab" href="#done" role="tab" aria-controls="contact" aria-selected="false">Done</a>
     </li>
+    <% if (user.permission == "admin" || user.permission == "owner") { %>
+      <button type="button" id="add-task-modal-btn" class="btn btn-info" data-toggle="modal" data-target="#addTaskModal">
+        + Add
+      </button>
+    <% } %>
   </ul>
   <% if (user.permission == "member" || user.permission == "admin" || user.permission == "owner") { %>
   <div class="tab-content" id="TabContent">
