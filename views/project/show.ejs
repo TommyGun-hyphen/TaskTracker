@@ -1,8 +1,5 @@
 <style>
   @media only screen and (min-width: 600px) {
-    #TabContent *{ 
-      display: block;
-    }
     #todo, #doing, #done{
       display: block !important;
     }
@@ -21,11 +18,18 @@
         <% } %>
   </div>
 </a>
-    <% if (user.permission == "admin" || user.permission == "owner") { %>
-      <button type="button" id="invite-modal-btn" class="btn btn-info" data-toggle="modal" data-target="#inviteUsers">
-        + Invite
-      </button>
-    <% } %>
+    <div>
+      <% if (user.permission == "admin" || user.permission == "owner") { %>
+        <button type="button" id="add-task-modal-btn" class="btn btn-success" data-toggle="modal" data-target="#addTaskModal">
+          + Add Task
+        </button>
+      <% } %>
+      <% if (user.permission == "admin" || user.permission == "owner") { %>
+        <button type="button" id="invite-modal-btn" class="btn btn-info" data-toggle="modal" data-target="#inviteUsers">
+          + Invite
+        </button>
+      <% } %>
+    </div>
     
     <% if (user.isInvited) { %>
       <div>
@@ -75,7 +79,8 @@
       </div>
 </div>
 
-<div class="d-block">
+
+<div class="d-block d-md-none">
   <!-- MOBILE -->
   <ul class="nav nav-tabs d-flex justify-content-center" id="myTab" role="tablist">
     <li class="nav-item">
@@ -87,17 +92,13 @@
     <li class="nav-item">
       <a class="nav-link" id="done-tab" data-toggle="tab" href="#done" role="tab" aria-controls="contact" aria-selected="false">Done</a>
     </li>
-    <% if (user.permission == "admin" || user.permission == "owner") { %>
-      <button type="button" id="add-task-modal-btn" class="btn btn-info" data-toggle="modal" data-target="#addTaskModal">
-        + Add
-      </button>
-    <% } %>
+    
   </ul>
   <% if (user.permission == "member" || user.permission == "admin" || user.permission == "owner") { %>
   <div class="tab-content" id="TabContent">
     <div class="tab-pane fade show active" id="todo" role="tabpanel" aria-labelledby="todo-tab">
       <!-- todo -->
-      <ul id="todo-ul" class="list-unstyled">
+      <ul class="todo-ul" class="list-unstyled">
         <% for(task of project.tasks.filter(p=>p.status == "todo") ){ %>
           <li class="d-flex align-items-center px-3 py-2">
             <div class="flex-grow-1">
@@ -124,7 +125,7 @@
       </ul>
     </div>
     <div class="tab-pane fade" id="doing" role="tabpanel" aria-labelledby="doing-tab">
-      <ul id="doing-ul" class="list-unstyled">
+      <ul class="doing-ul" class="list-unstyled">
         <% for(task of project.tasks.filter(p=>p.status == "doing") ){ %>
           <li class="d-flex align-items-center px-3 py-2">
             <div class="flex-grow-1">
@@ -152,7 +153,7 @@
       </ul>
     </div>
     <div class="tab-pane fade" id="done" role="tabpanel" aria-labelledby="done-tab">
-      <ul id="done-ul" class="list-unstyled">
+      <ul class="done-ul" class="list-unstyled">
         <% for(task of project.tasks.filter(p=>p.status == "done") ){ %>
           <li class="d-flex align-items-center px-3 py-2">
             <div class="flex-grow-1">
@@ -179,9 +180,7 @@
       </ul>
     </div>
   </div>
-  <% }else{ %>
-    <h4>You are not allowed to this information.</h4>
-  <% } %>
+  
 </div>
 
 <div class="d-none d-md-flex">
@@ -193,19 +192,92 @@
       
       <h4 class="text-center my-1">To-do</h4>
     </div>
-    
+    <ul class="todo-ul" class="list-unstyled">
+      <% for(task of project.tasks.filter(p=>p.status == "todo") ){ %>
+        <li class="d-flex align-items-center px-3 py-2">
+          <div class="flex-grow-1">
+            <h5 class="text-dark"><%= task.title %></h5>
+            <small class="my-1 text-muted"><%= moment(task.last_date).format('MMMM do YYYY, h:mm:ss a') %></small>
+            <span class="text-dark d-block"><%= task.description %>
+            </span>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <button class="dropdown-item btn-task-next" data-status="doing" data-id="<%= task.id %>">Mark as Doing >></button>
+              <% if (user.permission == "owner" || user.permission == "admin") { %>
+                <button class="dropdown-item btn-task-delete" data-id="<%= task.id %>">Delete</button>
+              <% } %>
+              <button class="dropdown-item btn-task-details" data-id="<%= task.id %>">Details</button>
+            </div>
+          </div>
+        </li>
+      <% }%>
+      
+    </ul>
   </div>
   <div style="flex-basis: 30%;" class="flex-grow-1 p-3 border m-1 bg-light rounded shadow">
     <div class="w-100 border-bottom">
       <h4 class="text-center my-1">Doing</h4>
     </div>
-    
+    <ul class="doing-ul" class="list-unstyled">
+      <% for(task of project.tasks.filter(p=>p.status == "doing") ){ %>
+        <li class="d-flex align-items-center px-3 py-2">
+          <div class="flex-grow-1">
+            <h5 class="text-dark"><%= task.title %></h5>
+            <small class="my-1 text-muted"><%= moment(task.last_date).format('MMMM do YYYY, h:mm:ss a') %></small>
+            <span class="text-dark d-block"><%= task.description %>
+            </span>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <button class="dropdown-item btn-task-next" data-status="done" data-id="<%= task.id %>">Mark as done >></button>
+              <button class="dropdown-item btn-task-next" data-status="todo" data-id="<%= task.id %>">Mark as to-do <<</button>
+              <% if (user.permission == "owner" || user.permission == "admin") { %>
+                <button class="dropdown-item btn-task-delete" data-id="<%= task.id %>">Delete</button>
+              <% } %>
+              <button class="dropdown-item btn-task-details" data-id="<%= task.id %>">Details</button>
+            </div>
+          </div>
+        </li>
+      <% }%>
+      
+    </ul>
   </div>
   <div style="flex-basis: 30%;" class="flex-grow-1 p-3 border m-1 bg-light rounded shadow">
     <div class="w-100 border-bottom">
       <h4 class="text-center my-1">Done</h4>
     </div>
-    
+    <ul class="done-ul" class="list-unstyled">
+      <% for(task of project.tasks.filter(p=>p.status == "done") ){ %>
+        <li class="d-flex align-items-center px-3 py-2">
+          <div class="flex-grow-1">
+            <h5 class="text-dark"><%= task.title %></h5>
+            <small class="my-1 text-muted"><%= moment(task.last_date).format('MMMM do YYYY, h:mm:ss a') %></small>
+            <span class="text-dark d-block"><%= task.description %>
+            </span>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-secondary " type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <button class="dropdown-item btn-task-next" data-status="doing" data-id="<%= task.id %>">Mark as Doing <<</button>
+              <% if (user.permission == "owner" || user.permission == "admin") { %>
+                <button class="dropdown-item btn-task-delete" data-id="<%= task.id %>">Delete</button>
+              <% } %>
+              <button class="dropdown-item btn-task-details" data-id="<%= task.id %>">Details</button>
+            </div>
+          </div>
+        </li>
+      <% }%>
+      
+    </ul>
   </div>
 </div>
 
@@ -239,7 +311,9 @@
     </div>
   </div>
 </div>
-
+<% }else{ %>
+  <h4>You are not allowed to this information.</h4>
+<% } %>
 
 <script>
   let changeStatus = function(){
@@ -255,7 +329,7 @@
       success:(data)=>{
         switch(status){
           case "todo":
-            $("#todo-ul").append(`
+            $(".todo-ul").append(`
                 <li class="d-flex align-items-center px-3 py-2">
               <div class="flex-grow-1">
                 <h5 class="text-dark">${data.task.title}</h5>
@@ -279,7 +353,7 @@
             `);
             break;
             case "doing":
-            $("#doing-ul").append(`
+            $(".doing-ul").append(`
                 <li class="d-flex align-items-center px-3 py-2">
               <div class="flex-grow-1">
                 <h5 class="text-dark">${data.task.title}</h5>
@@ -304,7 +378,7 @@
               
             break;
           case "done":
-            $("#done-ul").append(`
+            $(".done-ul").append(`
                 <li class="d-flex align-items-center px-3 py-2">
               <div class="flex-grow-1">
                 <h5 class="text-dark">${data.task.title}</h5>
@@ -362,7 +436,7 @@
         description: $("#textarea_description").val()
       },
       success: (data)=>{
-        $("#todo-ul").append(`
+        $(".todo-ul").append(`
         <li class="d-flex align-items-center px-3 py-2">
           <div class="flex-grow-1">
             <h5 class="text-dark">`+data.title+`</h5>
@@ -496,5 +570,15 @@
         }
       });
   });
-  
+  var lastWidth = $(window).width();
+  $(window).resize(function() {
+  console.log('window was resized');
+    let actualWidth = $(window).width();
+    if(actualWidth > 770 && lastWidth < 770){
+      location.reload();
+    }else if(actualWidth < 770 && lastWidth > 770){
+      location.reload();
+    }
+    lastWidth = actualWidth;
+  });
 </script>
